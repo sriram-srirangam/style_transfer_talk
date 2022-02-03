@@ -1,3 +1,5 @@
+import torch
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -21,3 +23,31 @@ def plot_points(x, y, title, color="black", grid=True, legend=False):
         plt.legend()
 
     return fig
+
+def gradient_descent(f, start, lr=0.01, eps=0.01):
+    p = start
+    p = p.clone().detach().requires_grad_(True)
+    f_p = f(p)
+    dp_dx = p.grad
+
+    ps = [p.data]
+    f_ps = [f_p]
+    grads = [dp_dx]
+    
+    # Keep iterating until gradient becomes arbitrarily small
+    while torch.abs(dp_dx) > eps:
+
+        # Step down the tangent line
+        p = p - lr * dp_dx
+
+        # Calculate function value/gradient at new point
+        p = p.clone().detach().requires_grad_(True)
+        f_p = f(p)
+        dp_dx = p.grad
+        
+        # Bookkeeping shit
+        ps.append(p.data)
+        f_ps.append(f_p)
+        grads.append(dp_dx)
+    
+    return ps, f_ps, grads
